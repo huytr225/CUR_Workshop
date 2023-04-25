@@ -1,5 +1,5 @@
 ---
-title : "Preparation for CUR Data"
+title : "Preparation for CUR Data and SES Email"
 date :  "`r Sys.Date()`" 
 weight : 2
 chapter : false

@@ -37,4 +37,5 @@ pre : " <b> 3.3. </b> "
     ![005-upload-file](/images/3.3-lambdacode/005-upload-file.png)
     ![006-upload-file-2](/images/3.3-lambdacode/006-upload-file-2.png)
     ![007-upload-success](/images/3.3-lambdacode/007-upload-success.png)
+    ![008-copy-url](/images/3.3-lambdacode/008-copy-url.png)
 
