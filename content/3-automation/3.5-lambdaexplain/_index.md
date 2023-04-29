@@ -1,5 +1,5 @@
 ---
-title : "Explain lambda function"
+title : "Explain Lambda code"
 date :  "`r Sys.Date()`" 
 weight : 5
 chapter : false
@@ -7,10 +7,12 @@ pre : " <b> 3.5. </b> "
 ---
 
 #### Explain config.yml
+Setup all the config nessesary for Lambda code
 ```
+#S3 Location for output
 CUR_Output_Location: S3://fcj-costreport/out-put/
 
-#CUR database name and table
+#CUR database name and table in Glue
 CUR_DB: '"cost"."fcj_cur_report"'
 
 #CUR file name with suffix '.xlsx', which is sent as attachment via SES
@@ -46,4 +48,88 @@ MTD_CF_By_Distribution - MTD Cloudfront cost and usage split by distribution id
 AWS Enterprise Support Team
 
 "
+```
+
+#### Eplain Lambda code
+The code below load query string (Query_String_List in config.yml) into qStrList variable 
+```
+# Define a dic list qStrList, and load all query strings into qStrList with the pair key (Name, queryString), also replace year/month in the strings
+qStr = cfg['Query_String_List']
+# print(qStr[0].values()[0])
+qStrList = []
+
+
+# Multiple charactors replacement in a string
+def multReplace(string, substitutions):
+    substrings = sorted(substitutions, key=len, reverse=True)
+    regex = re.compile('|'.join(map(re.escape, substrings)))
+    return regex.sub(lambda match: substitutions[match.group(0)], string)
+
+
+qStrSub = {
+    'CUR_DB': curDB,
+    'CUR_YEAR': str(curYear),
+    'CUR_MONTH': str(curMonth),
+    # 'CUR_WEEK': str(curWk),
+    'CUR_OR_LAST_YEAR': str(curOrLastYr),
+    'LAST_YEAR': str(lastYear),
+    'LAST_MONTH': str(lastMon),
+    # 'LAST_WEEK': str(lastWk),
+    'PRE_LAST_MONTH': str(preLastMon)
+    # 'PRE_LAST_WEEK': str(preLastWk)
+}
+for i in range(len(qStr)):
+    # print(list(qStr[i].values())[0])
+    qString = multReplace(list(qStr[i].values())[0], qStrSub)
+    qStrList.append({'name': list(qStr[i].keys())[0], 'queryString': qString})
+```
+
+We have:
+- auto_cur_delivery (file name)
+- lambda_handler(function name)
+- Change Handler to: ```auto_cur_delivery.lambda_handler``` in 3.4 Create a lambda function Define the function the code start
+
+Flow of code:
+1. queryCUR: Query CUR using Athena 
+2. 'OutputLocation': output location of query result
+3. cpResultsTolocal: Get query result (CSV)
+    - csvToXlsx: Change csv to xlsx
+    - processExcel: Combine all xlsx files in to a single xlsx report file
+4. sendReport: Send CUR report via SES
+5. client.send_raw_email: Send CUR report via SES to Recipients
+```
+# =========== Function Execution ==================
+def lambda_handler(event, context):
+    queryCUR(qStrList, curOutLoc) # Query CUR using Athena
+    waitQueryExecution(queryExpiration, qStrList)
+    cpResultsTolocal(curBucket, curKeyPath, qStrList) # Get query result (CSV)
+    csvToXlsx(qStrList)
+    processExcel(curReportName, qStrList)
+    response = sendReport(region, subject, sender, recipient, curReportName, bodyText) # Send CUR report via SES
+    return response
+```
+
+```
+def queryCUR(queryList, targetLocation):
+    client = boto3.client('athena')
+    print("Starting query CUR ... ")
+    for i in range(len(queryList)):
+        resp = client.start_query_execution(
+            QueryString=queryList[i]['queryString'],
+            ResultConfiguration={
+                'OutputLocation': targetLocation # output location of query result
+            })
+        queryList[i]['queryId'] = resp['QueryExecutionId']
+        print("Query " + queryList[i]['name'] + ' cost, queryId is ' + queryList[i]['queryId'])
+```
+```
+# Send CUR report via SES to Recipients
+
+response = client.send_raw_email( 
+            Source=sesSender,
+            Destinations=sesReceiver.split(','),
+            RawMessage={
+                'Data': msg.as_string()
+            }
+        )
 ```
