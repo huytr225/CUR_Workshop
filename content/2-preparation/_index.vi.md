@@ -6,7 +6,7 @@ chapter : false
 pre : " <b> 2. </b> "
 ---
 #### Các bước chuẩn bị dữ liệu CUR và Email SES
-Phần này sẽ hướng dẫn bạn các bước thiết lập để phân tích Cost and Usage Reports (CUR) của bạn. Các kỹ năng bạn học trong bài lab sẽ giúp bạn thực hiện phân tích về Cost and Usage Reports (CUR) của mình.
+Phần này sẽ hướng dẫn bạn các bước thiết lập để phân tích Báo cáo chi phí và mức sử dụng (CUR) của bạn. Các kỹ năng bạn học trong bài lab sẽ giúp bạn thực hiện phân tích về Báo cáo chi phí và mức sử dụng (CUR) của mình.
 
 ![prepare-architecture](/images/prepare-architecture.png)
 

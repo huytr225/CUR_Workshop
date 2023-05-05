@@ -6,7 +6,7 @@ chapter : false
 pre : " <b> 2.2. </b> "
 ---
 
-Kế hoạch của chúng ta là sử dụng AWS Glue và lập lịch một Crawler. Crawler sẽ quét các file CUR, tạo ra cơ sở dữ liệu và tạo bảng cho các file đã quét qua.
+Kế hoạch của chúng ta là sử dụng AWS Glue và lập lịch một Crawler. Sau đó Crawler sẽ quét các file CUR, tạo ra cơ sở dữ liệu và tạo bảng cho các file đã quét qua.
 
 Để truy cập và phân tích các file CUR bằng SQL, chúng ta sẽ sử dụng Athena. Athena là một giải pháp không cần máy chủ cho phép thực hiện truy vấn SQL trên các khối lượng dữ liệu lớn. Athena chỉ tính phí cho dữ liệu đã được duyệt qua, và không có chi phí định kỳ nếu dữ liệu không được truy vấn.
 
