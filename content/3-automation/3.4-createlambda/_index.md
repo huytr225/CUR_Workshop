@@ -42,7 +42,7 @@ pre : " <b> 3.4. </b> "
 ![009-general-configuration-detail](/images/3.4-createlambda/009-general-configuration-detail.png)
 + Click **Test** section
 + Click **Test**
-+ Check **Ẽxcution result: successed**
++ Check **Excution result: successed**
 ![010-test](/images/3.4-createlambda/010-test.png)
 + Check **your email inbox**
 ![011-email](/images/3.4-createlambda/011-email.png)

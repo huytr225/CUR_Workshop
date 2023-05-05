@@ -5,7 +5,7 @@ weight : 2
 chapter : false
 pre : " <b> 2.2. </b> "
 ---
-Our plan is to utilize AWS Glue and setup a scheduled Crawler. The Crawler will examine the CUR files, generate a database, and create tables for the files that have been received. Any new editions of a CUR, or new monthly deliveries, will be automatically added.
+Our plan is to utilize AWS Glue and setup a scheduled Crawler. The Crawler will examine the CUR files, generate a database, and create tables for the files that have been received.
 
 To access and analyze our CUR files using SQL, we'll use Athena. Athena is a serverless alternative that allows for SQL queries to be executed on substantial data volumes. Athena is solely billed for data that has been examined, and there are no recurring expenses if the data is not being queried, which is different from a traditional database solution.
 

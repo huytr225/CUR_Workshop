@@ -51,8 +51,11 @@ AWS Enterprise Support Team
 ```
 
 #### Eplain Lambda code
-The code below load query string (Query_String_List in config.yml) into qStrList variable 
+Load query string into qStrList 
+
 ```
+# The code below load query string (Query_String_List in config.yml) into qStrList variable 
+
 # Define a dic list qStrList, and load all query strings into qStrList with the pair key (Name, queryString), also replace year/month in the strings
 qStr = cfg['Query_String_List']
 # print(qStr[0].values()[0])
@@ -84,28 +87,32 @@ for i in range(len(qStr)):
     qStrList.append({'name': list(qStr[i].keys())[0], 'queryString': qString})
 ```
 
-We have:
-- auto_cur_delivery (file name)
-- lambda_handler(function name)
-- Change Handler to: ```auto_cur_delivery.lambda_handler``` in 3.4 Create a lambda function Define the function the code start
+
 
 Flow of code:
-1. queryCUR: Query CUR using Athena 
-2. 'OutputLocation': output location of query result
-3. cpResultsTolocal: Get query result (CSV)
+1. CloudWatch Event activate Lambda function
+   - The function run from Handler we define:
+   - auto_cur_delivery (file name)
+   - lambda_handler(function name)
+   - In **3.4 Create a lambda function** we Change Handler to: ```auto_cur_delivery.lambda_handler```
+   - -> function run from **auto_cur_delivery.lambda_handler**
+2. queryCUR: Query CUR using Athena 
+3. 'OutputLocation': output location of query result
+4. cpResultsTolocal: Get query result (CSV)
     - csvToXlsx: Change csv to xlsx
     - processExcel: Combine all xlsx files in to a single xlsx report file
-4. sendReport: Send CUR report via SES
-5. client.send_raw_email: Send CUR report via SES to Recipients
+5. sendReport: Send CUR report via SES
+6. client.send_raw_email: Send CUR report via SES to Recipients
+![main-architecture](/images/main-architecture.png)
 ```
 # =========== Function Execution ==================
 def lambda_handler(event, context):
-    queryCUR(qStrList, curOutLoc) # Query CUR using Athena
+    queryCUR(qStrList, curOutLoc) # 2. queryCUR: Query CUR using Athena 
     waitQueryExecution(queryExpiration, qStrList)
-    cpResultsTolocal(curBucket, curKeyPath, qStrList) # Get query result (CSV)
-    csvToXlsx(qStrList)
-    processExcel(curReportName, qStrList)
-    response = sendReport(region, subject, sender, recipient, curReportName, bodyText) # Send CUR report via SES
+    cpResultsTolocal(curBucket, curKeyPath, qStrList) # 4. cpResultsTolocal: Get query result (CSV)
+    csvToXlsx(qStrList)                               #     - csvToXlsx: Change csv to xlsx
+    processExcel(curReportName, qStrList)             #     - processExcel: Combine all xlsx files in to a single xlsx report file
+    response = sendReport(region, subject, sender, recipient, curReportName, bodyText) # 5. sendReport: Send CUR report via SES
     return response
 ```
 
@@ -117,7 +124,7 @@ def queryCUR(queryList, targetLocation):
         resp = client.start_query_execution(
             QueryString=queryList[i]['queryString'],
             ResultConfiguration={
-                'OutputLocation': targetLocation # output location of query result
+                'OutputLocation': targetLocation # 3. 'OutputLocation': output location of query result
             })
         queryList[i]['queryId'] = resp['QueryExecutionId']
         print("Query " + queryList[i]['name'] + ' cost, queryId is ' + queryList[i]['queryId'])
@@ -125,7 +132,7 @@ def queryCUR(queryList, targetLocation):
 ```
 # Send CUR report via SES to Recipients
 
-response = client.send_raw_email( 
+response = client.send_raw_email( # 6. client.send_raw_email: Send CUR report via SES to Recipients
             Source=sesSender,
             Destinations=sesReceiver.split(','),
             RawMessage={
